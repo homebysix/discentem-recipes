@@ -10,6 +10,7 @@ Process:
   - Processor: URLDownloader
     Arguments:
       url: '%url%'
+  - Processor: EndOfCheckPhase
   - Processor: com.github.discentem.SharedProcessors/WindowsSignatureVerifier
     Arguments:
       input_path: '%pathname%'
