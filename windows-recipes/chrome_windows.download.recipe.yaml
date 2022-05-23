@@ -7,3 +7,4 @@ Process:
   - Processor: URLDownloader
     Arguments:
       url: 'https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise.msi'
+  - Processor: EndOfCheckPhase
