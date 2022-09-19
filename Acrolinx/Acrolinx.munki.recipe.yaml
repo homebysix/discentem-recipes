@@ -1,5 +1,5 @@
 Description: Downloads the latest version of Acrolinx and imports it into Munki.
-Identifier: com.github.discentem.Acrolinx
+Identifier: com.github.discentem.munki.Acrolinx
 ParentRecipe: com.github.discentem.download.acrolinx
 MinimumVersion: '2.0'
 
