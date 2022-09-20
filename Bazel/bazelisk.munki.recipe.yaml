@@ -1,12 +1,13 @@
 Identifier: com.github.discentem.bazelisk.munki.yaml
 MinimumVersion: '2.3'
+ParentRecipe: com.github.discentem.bazelisk.pkg.yaml
 
 Input:
   MUNKI_CATEGORY: Utilities
   MUNKI_REPO_SUBDIR: utilities/bazel/bazelisk
   NAME: bazelisk
   pkginfo:
-    catalogs: 
+    catalogs:
       - production
     category: '%MUNKI_CATEGORY%'
     description: Bazelisk is a wrapper for Bazel written in Go. It automatically picks a good version of Bazel given your current working directory, downloads it from the official server (if required) and then transparently passes through all command-line arguments to the real Bazel binary. You can call it just like you would call Bazel.
@@ -16,37 +17,7 @@ Input:
     unattended_install: true
 
 Process:
-  - Processor: PkgRootCreator
-    Arguments:
-      pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/pkgroot'
-      pkgdirs:
-        'usr/local/bin': '0775'
-  - Processor: Copier
-    Arguments:
-      source_path: '%pathname%'
-      destination_path: '%pkgroot%/usr/local/bin/bazelisk'
-  # create scripts dir
-  - Processor: PkgRootCreator
-    Arguments:
-      pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/scripts'
-  # create postinstall
-  - Processor: FileCreator
-    Arguments:
-      file_path: '%RECIPE_CACHE_DIR%/%NAME%/scripts/postinstall'
-      file_content: |
-        #!/bin/bash
-        chmod +x /usr/local/bin/bazelisk
-      file_mode: '0755'
-  - Processor: PkgCreator
-    Arguments:
-      pkg_request:
-        pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/pkgroot'
-        pkgname: '%NAME%-%version%'
-        id: 'com.github.bazelbuild.bazelisk'
-        # scripts is automatically looking relative to %RECIPE_CACHE_DIR%
-        scripts: '%NAME%/scripts'
   - Processor: MunkiImporter
     Arguments:
       pkg_path: '%pkg_path%'
       repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
-ParentRecipe: com.github.discentem.bazelisk.download.yaml
