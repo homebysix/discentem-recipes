@@ -79,7 +79,7 @@ class AcrolinxURLProvider(URLGetter):
                 )
         if debug != None:
             self.output(f"Using username {username}, password {password}, uuid {uuid}")
-        url = URL.format(username, password, uuid)
+        url = URL.format(os.environ["acrolinx_username"], os.environ["acrolinx_password"], uuid)
         cmd = [self.curl_binary(), "--write-out", "'%{json}'", url]
         out, err, code = self.execute_curl(cmd)
         if debug != None:
