@@ -49,13 +49,6 @@ class AcrolinxURLProvider(URLGetter):
         password = self.env.get("acrolinx_password", None)
         debug = self.env.get("acrolinx_debug", None)
         
-        if debug != None:
-            self.output(f"{os.environ}")
-        if debug != None:
-            self.output(f"username: {username}")
-        if debug != None:
-            self.output(f"password: {password}")
-        
         if uuid == "%acrolinx_uuid%" or uuid == None:
             if os.environ.get("acrolinx_uuid") is not None:
                 uuid = os.environ["acrolinx_uuid"]
@@ -80,6 +73,7 @@ class AcrolinxURLProvider(URLGetter):
         if debug != None:
             self.output(f"Using username {username}, password {password}, uuid {uuid}")
         url = URL.format(os.environ["acrolinx_username"], os.environ["acrolinx_password"], uuid)
+        self.output(f"{url}")
         cmd = [self.curl_binary(), "--write-out", "'%{json}'", url]
         out, err, code = self.execute_curl(cmd)
         if debug != None:
