@@ -70,14 +70,11 @@ class AcrolinxURLProvider(URLGetter):
                 raise ProcessorError(
                     "acrolinx_password was not provided, fallback to environment variable return None"
                 )
-        if debug != None:
-            self.output(f"Using username {username}, password {password}, uuid {uuid}")
         url = URL.format(os.environ["acrolinx_username"], os.environ["acrolinx_password"], uuid)
-        self.output(f"{url}")
         cmd = [self.curl_binary(), "--write-out", "'%{json}'", url]
         out, err, code = self.execute_curl(cmd)
         if debug != None:
-            self.output(f"out: {username}, code {code}")
+            self.output(f"out: {out}, code {code}")
         if code != 0:
             raise ProcessorError(
                 f"{cmd} exited non-zero.\n{err}"
