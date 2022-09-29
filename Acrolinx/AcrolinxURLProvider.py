@@ -79,7 +79,7 @@ class AcrolinxURLProvider(URLGetter):
             raise ProcessorError(
                 f"{cmd} exited non-zero.\n{err}"
             )
-        json_blob = out.split("{")[1]
+        json_blob = out.split("{")[0]
         json_blob = "{" + json_blob # add back { so it is valid jsoin
         json_blob = json_blob.rstrip("'")
         self.output(json_blob)
