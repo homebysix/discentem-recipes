@@ -37,6 +37,7 @@ class AcrolinxURLProvider(URLGetter):
         "acrolinx_uuid": {"required": True, "description": "UUID that seems to correspond to a specific Acrolinx customer portal"},
         "acrolinx_username": {"required": False, "description": "Username for authentication."},
         "acrolinx_password": {"required": False, "description": "Password for authentication"},
+        "acrolinx_debug": {"required": False, "description": "Prints out debug env info"}
     }
     output_variables = {"url": {"description": "Download URL for Acrolinx."}}
 
@@ -45,6 +46,7 @@ class AcrolinxURLProvider(URLGetter):
         uuid = self.env.get("acrolinx_uuid", None)
         username = self.env.get("acrolinx_username", None)
         password = self.env.get("acrolinx_password", None)
+        debug = self.env.get("acrolinx_debug", None)
         if uuid == "%acrolinx_uuid%" or uuid == None:
             uuid = os.environ.get('acrolinx_uuid')
             if uuid == None:
@@ -63,10 +65,13 @@ class AcrolinxURLProvider(URLGetter):
                 raise ProcessorError(
                     "acrolinx_password was not provided, fallback to environment variable return None"
                 )
-           
+        if debug != None:
+            self.output(f"Using username {username}, password {password}, uuid {uuid}")
         url = URL.format(username, password, uuid)
         cmd = [self.curl_binary(), "--write-out", "'%{json}'", url]
         out, err, code = self.execute_curl(cmd)
+        if debug != None:
+            self.output(f"out: {username}, code {code}")
         if code != 0:
             raise ProcessorError(
                 f"{cmd} exited non-zero.\n{err}"
