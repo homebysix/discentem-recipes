@@ -43,16 +43,19 @@ class AcrolinxURLProvider(URLGetter):
 
     def main(self):
         """Find the download URL"""
-        if debug != None:
-            self.output(f"{os.environ}")
+        
         uuid = self.env.get("acrolinx_uuid", None)
         username = self.env.get("acrolinx_username", None)
+        password = self.env.get("acrolinx_password", None)
+        debug = self.env.get("acrolinx_debug", None)
+        
+        if debug != None:
+            self.output(f"{os.environ}")
         if debug != None:
             self.output(f"username: {username}")
-        password = self.env.get("acrolinx_password", None)
         if debug != None:
             self.output(f"password: {password}")
-        debug = self.env.get("acrolinx_debug", None)
+        
         if uuid == "%acrolinx_uuid%" or uuid == None:
             if os.environ.get("acrolinx_uuid") is not None:
                 uuid = os.environ["acrolinx_uuid"]
