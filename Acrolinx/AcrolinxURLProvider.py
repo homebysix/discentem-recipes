@@ -48,20 +48,23 @@ class AcrolinxURLProvider(URLGetter):
         password = self.env.get("acrolinx_password", None)
         debug = self.env.get("acrolinx_debug", None)
         if uuid == "%acrolinx_uuid%" or uuid == None:
-            uuid = os.environ.get('acrolinx_uuid')
-            if uuid == None:
+            if os.environ.get("acrolinx_uuid") is not None:
+                uuid = os.environ["acrolinx_uuid"]
+            else:
                 raise ProcessorError(
                     "acrolinx_uuid was not provided, fallback to environment variable return None"
                 )
         if username == "%acrolinx_username%" or username == None:
-            username = os.environ.get('acrolinx_username')
-            if username == None:
+            if os.environ.get("acrolinx_username") is not None:
+                username = os.environ["acrolinx_username"]
+            else:
                 raise ProcessorError(
                     "acrolinx_username was not provided, fallback to environment variable return None"
                 )
         if password == "%acrolinx_password%" or password == None:
-            password = os.environ.get('acrolinx_password')
-            if password == None:
+            if os.environ.get("acrolinx_password") is not None:
+                password = os.environ["acrolinx_password"]
+            else:
                 raise ProcessorError(
                     "acrolinx_password was not provided, fallback to environment variable return None"
                 )
