@@ -86,7 +86,7 @@ class AcrolinxURLProvider(URLGetter):
             self.env["url"] = url
         except:
             raise ProcessorError(
-                "url not found"
+                f"download url not found in output:\n {out}"
             )
         
 
