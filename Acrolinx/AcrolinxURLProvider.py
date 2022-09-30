@@ -47,7 +47,6 @@ class AcrolinxURLProvider(URLGetter):
         uuid = self.env.get("acrolinx_uuid", None)
         username = self.env.get("acrolinx_username", None)
         password = self.env.get("acrolinx_password", None)
-        debug = self.env.get("acrolinx_debug", None)
         
         if uuid == "%acrolinx_uuid%" or uuid == None:
             if os.environ.get("acrolinx_uuid") is not None:
@@ -70,25 +69,15 @@ class AcrolinxURLProvider(URLGetter):
                 raise ProcessorError(
                     "acrolinx_password was not provided, fallback to environment variable return None"
                 )
-        url = URL.format(os.environ["acrolinx_username"], os.environ["acrolinx_password"], uuid)
+        url = URL.format(username, password, uuid)
         cmd = [self.curl_binary(), "--write-out", "'%{json}'", url]
         out, err, code = self.execute_curl(cmd)
-        if debug != None:
-            self.output(f"out: {out}, code {code}")
         if code != 0:
             raise ProcessorError(
                 f"{cmd} exited non-zero.\n{err}"
             )
-#         json_blob = out.split("{")[0]
-#         if not json_blob.startswith("{"):
-#             json_blob = "{" + json_blob # add back { so it is valid jsoin
-#         json_blob = json_blob.rstrip("'")
-#         if not json_blob.endswith("}"):
-#             json_blob = json_blob + "}" # add back } so it is valid jsoin
-#         self.output(json_blob)
-#         d = json.loads(json_blob)
-
         try:
+            # regex to match a url
             regex = r"https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)"
             match = re.search(regex, out)
 
