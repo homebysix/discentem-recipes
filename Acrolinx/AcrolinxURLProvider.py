@@ -92,7 +92,7 @@ class AcrolinxURLProvider(URLGetter):
             regex = r"https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)"
             match = re.search(regex, out)
 
-            url = match[1]
+            url = match[0]
             self.output(f"Found URL: {url}")
             self.env["url"] = url
         except:
