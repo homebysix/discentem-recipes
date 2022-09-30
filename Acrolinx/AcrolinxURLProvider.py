@@ -17,7 +17,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
+import re
 import os
 from autopkglib import ProcessorError
 from autopkglib.URLGetter import URLGetter
@@ -79,17 +79,27 @@ class AcrolinxURLProvider(URLGetter):
             raise ProcessorError(
                 f"{cmd} exited non-zero.\n{err}"
             )
-        json_blob = out.split("{")[0]
-        if not json_blob.startswith("{"):
-            json_blob = "{" + json_blob # add back { so it is valid jsoin
-        json_blob = json_blob.rstrip("'")
-        if not json_blob.endswith("}"):
-            json_blob = json_blob + "}" # add back } so it is valid jsoin
-        self.output(json_blob)
-        d = json.loads(json_blob)
-        url = d['redirect_url']
-        self.output(f"Found URL: {url}")
-        self.env["url"] = url
+#         json_blob = out.split("{")[0]
+#         if not json_blob.startswith("{"):
+#             json_blob = "{" + json_blob # add back { so it is valid jsoin
+#         json_blob = json_blob.rstrip("'")
+#         if not json_blob.endswith("}"):
+#             json_blob = json_blob + "}" # add back } so it is valid jsoin
+#         self.output(json_blob)
+#         d = json.loads(json_blob)
+
+        try:
+            regex = r"https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)"
+            match = re.search(regex, out)
+
+            url = match[1]
+            self.output(f"Found URL: {url}")
+            self.env["url"] = url
+        except:
+            raise ProcessorError(
+                "url not found"
+            )
+        
 
 
 if __name__ == "__main__":
