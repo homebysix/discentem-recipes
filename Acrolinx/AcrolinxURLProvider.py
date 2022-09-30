@@ -80,8 +80,11 @@ class AcrolinxURLProvider(URLGetter):
                 f"{cmd} exited non-zero.\n{err}"
             )
         json_blob = out.split("{")[0]
-        json_blob = "{" + json_blob # add back { so it is valid jsoin
+        if not json_blob.startswith("{"):
+            json_blob = "{" + json_blob # add back { so it is valid jsoin
         json_blob = json_blob.rstrip("'")
+        if not json_blob.endswith("}")
+            json_blob = json_blob + "}" # add back } so it is valid jsoin
         self.output(json_blob)
         d = json.loads(json_blob)
         url = d['redirect_url']
