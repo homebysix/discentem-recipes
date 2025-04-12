@@ -101,6 +101,17 @@ class AutopkgVendorer(Processor):
         else:
             raise ProcessorError(f"Invalid comment_style: '{style}'. Must be 'yaml' or 'xml'.")
 
+    def insert_comment_header(self, header: str, content: str, comment_style: str) -> str:
+        if comment_style == "xml":
+            lines = content.splitlines(keepends=True)
+            # Insert header as the 4th line, after the XML declaration, DOCTYPE, and <plist>
+            if len(lines) >= 3:
+                return ''.join(lines[:3]) + header + ''.join(lines[3:])
+            
+            return header + content  # fallback if fewer than 3 lines
+        return header + content
+
+
     def download_folder_recursive(self, session, repo, path, commit_sha, dest_base, rel_base=""):
         endpoint = f"/repos/{repo}/contents/{path}"
         query = f"ref={commit_sha}"
@@ -121,7 +132,7 @@ class AutopkgVendorer(Processor):
             elif item_type == "file":
                 file_contents = self.download_text_file_at_commit_raw(session, repo, item_path, commit_sha)
                 header = self.generate_comment_header(repo, item_path, commit_sha)
-                full_contents = header + file_contents
+                full_contents = self.insert_comment_header(header, file_contents, self.env.get("comment_style", "xml"))
 
                 os.makedirs(os.path.dirname(dest_path), exist_ok=True)
                 with open(dest_path, "w", encoding="utf-8") as f:
