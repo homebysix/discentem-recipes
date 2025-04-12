@@ -1,12 +1,12 @@
-<!--
-Downloaded from https://github.com/autopkg/peetinc-recipes/blob/4d5e1aab90f9de9799d471d2339a4371eeacda29/Cursor/Cursor.pkg.recipe
-Commit: 4d5e1aab90f9de9799d471d2339a4371eeacda29
-Downloaded at: 2025-03-29 22:47:26 UTC
--->
-
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<!--
+Downloaded from https://github.com/autopkg/peetinc-recipes/blob/4d5e1aab90f9de9799d471d2339a4371eeacda29/Cursor/Cursor.pkg.recipe
+Commit: 4d5e1aab90f9de9799d471d2339a4371eeacda29
+Downloaded at: 2025-04-12 23:29:02 UTC
+-->
+
 <dict>
 	<key>Comment</key>
 	<string>Created with Recipe Robot v2.3.1 (https://github.com/homebysix/recipe-robot)</string>
