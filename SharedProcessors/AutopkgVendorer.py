@@ -2,11 +2,19 @@ from __future__ import absolute_import
 
 import os
 import tempfile
-import json
 import datetime
+import sys
+from io import BytesIO
+
+lib_path = os.path.join(os.path.dirname(__file__), "lib")
+if lib_path not in sys.path:
+    sys.path.insert(0, lib_path)
+
+from plist_yaml_plist.plist_yaml import plist_yaml_from_dict
 
 from autopkglib import Processor, ProcessorError
 from autopkglib.github import GitHubSession
+from plistlib import loads as plist_loads
 
 __all__ = ["AutopkgVendorer"]
 
@@ -41,6 +49,10 @@ class AutopkgVendorer(Processor):
             "required": False,
             "description": "Override comment style: 'yaml' or 'xml'. Default is based on file extension.",
         },
+        "convert_to_yaml": {
+            "required": False,
+            "description": "Whether to convert plist or recipe files to YAML. Defaults to True.",
+        },
     }
 
     output_variables = {
@@ -70,15 +82,13 @@ class AutopkgVendorer(Processor):
         except Exception as e:
             raise ProcessorError(f"Failed to download {path} at {commit_sha}: {e}")
 
-    def generate_comment_header(self, repo, path, commit_sha):
+    def generate_comment_header(self, repo, path, commit_sha, comment_style=None):
         """Generates a comment block to prepend to the file."""
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
         github_url = f"https://github.com/{repo}/blob/{commit_sha}/{path}"
 
-        # Use explicit override if provided
-        override = self.env.get("comment_style")
-        if override:
-            style = override.lower()
+        if comment_style:
+            style = comment_style.lower()
         elif path.endswith((".recipe", ".xml")):
             style = "xml"
         else:
@@ -104,15 +114,20 @@ class AutopkgVendorer(Processor):
     def insert_comment_header(self, header: str, content: str, comment_style: str) -> str:
         if comment_style == "xml":
             lines = content.splitlines(keepends=True)
-            # Insert header as the 4th line, after the XML declaration, DOCTYPE, and <plist>
             if len(lines) >= 3:
                 return ''.join(lines[:3]) + header + ''.join(lines[3:])
-            
-            return header + content  # fallback if fewer than 3 lines
+            return header + content
         return header + content
 
+    def convert_to_yaml(self, content: str):
+        """Convert a string plist to YAML format."""
+        try:
+            plist_data = plist_loads(content.encode("utf-8"))
+            return plist_yaml_from_dict(plist_data)
+        except Exception as e:
+            raise ProcessorError(f"Failed to convert to YAML: {e}")
 
-    def download_folder_recursive(self, session, repo, path, commit_sha, dest_base, rel_base=""):
+    def download_folder_recursive(self, session, repo, path, commit_sha, dest_base, rel_base="", convert_to_yaml=False):
         endpoint = f"/repos/{repo}/contents/{path}"
         query = f"ref={commit_sha}"
 
@@ -128,11 +143,20 @@ class AutopkgVendorer(Processor):
             dest_path = os.path.join(dest_base, rel_path)
 
             if item_type == "dir":
-                self.download_folder_recursive(session, repo, item_path, commit_sha, dest_base, rel_path)
+                self.download_folder_recursive(session, repo, item_path, commit_sha, dest_base, rel_path, convert_to_yaml)
             elif item_type == "file":
                 file_contents = self.download_text_file_at_commit_raw(session, repo, item_path, commit_sha)
-                header = self.generate_comment_header(repo, item_path, commit_sha)
-                full_contents = self.insert_comment_header(header, file_contents, self.env.get("comment_style", "xml"))
+
+                if item_name.endswith((".plist", ".recipe")) and convert_to_yaml:
+                    header = self.generate_comment_header(repo, item_path, commit_sha, comment_style="yaml")
+                    yaml_body = self.convert_to_yaml(file_contents)
+                    full_contents = header + yaml_body
+                    comment_style = "yaml"
+                    dest_path = dest_path.replace(".recipe", ".recipe.yaml")
+                else:
+                    comment_style = "xml"
+                    header = self.generate_comment_header(repo, item_path, commit_sha, comment_style)
+                    full_contents = self.insert_comment_header(header, file_contents, comment_style)
 
                 os.makedirs(os.path.dirname(dest_path), exist_ok=True)
                 with open(dest_path, "w", encoding="utf-8") as f:
@@ -147,6 +171,7 @@ class AutopkgVendorer(Processor):
         folder_path = self.env["folder_path"]
         commit_sha = self.env["commit_sha"]
         github_token = self.env.get("github_token")
+        convert_to_yaml = self.env.get("convert_to_yaml", True)
 
         destination_path = self.env.get("destination_path")
         if not destination_path:
@@ -154,7 +179,6 @@ class AutopkgVendorer(Processor):
         else:
             os.makedirs(destination_path, exist_ok=True)
 
-        # Setup GitHub session
         gh_session = GitHubSession(github_token)
 
         try:
@@ -164,13 +188,15 @@ class AutopkgVendorer(Processor):
                 path=folder_path,
                 commit_sha=commit_sha,
                 dest_base=destination_path,
-                rel_base=""
+                rel_base="",
+                convert_to_yaml=convert_to_yaml,
             )
         except Exception as e:
             raise ProcessorError(f"Failed to download folder from GitHub: {e}")
 
         self.env["downloaded_folder_path"] = destination_path
         self.output(f"All files downloaded to: {destination_path}")
+
 
 if __name__ == "__main__":
     processor = AutopkgVendorer()
