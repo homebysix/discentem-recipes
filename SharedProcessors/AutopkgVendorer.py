@@ -32,7 +32,7 @@ class AutopkgVendorer(Processor):
         "convert_to_yaml": {"required": False, "description": "Convert plist/recipe to YAML (default True)"},
         "new_identifier": {"required": True, "description": "Override Identifier entirely"},
         "new_name": {"required": False, "description": "Override Name in the recipe, if present"},
-        "fail_if_license_missing": {"required": False, "description": "Fail if LICENSE file not found", "default": True},
+        "required_license": {"required": True, "description": "Required license type"},
     }
 
     output_variables = {
@@ -55,13 +55,13 @@ class AutopkgVendorer(Processor):
         except Exception as e:
             raise ProcessorError(f"Failed to download {path} at {commit_sha}: {e}")
 
-    def check_root_for_license(self, session, repo, commit_sha):
-        endpoint = f"/repos/{repo}/contents"
+    def license_type(self, session, repo, commit_sha):
+        endpoint = f"/repos/{repo}/license"
         query = f"ref={commit_sha}"
         response_json, status = session.call_api(endpoint, query=query)
-        if status != 200 or not isinstance(response_json, list):
+        if status != 200:
             raise ProcessorError(f"GitHub API error while checking for LICENSE in root: {status}")
-        return any(item.get("type") == "file" and item.get("name", "").lower() == "license" for item in response_json)
+        return response_json["license"].get("spdx_id")
 
     def generate_comment_header(self, repo, path, commit_sha, style):
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -159,13 +159,14 @@ class AutopkgVendorer(Processor):
         convert_to_yaml = self.env.get("convert_to_yaml", True)
         new_identifier = self.env.get("new_identifier")
         new_name = self.env.get("new_name")
+        required_license = self.env.get("required_license")
 
         os.makedirs(destination_path, exist_ok=True)
         gh_session = GitHubSession(github_token)
 
-        license_found = self.check_root_for_license(gh_session, repo, commit_sha)
-        if self.env.get("fail_if_license_missing") and not license_found:
-            raise ProcessorError("LICENSE file not found in the root of the repository.")
+        found_license = self.license_type(gh_session, repo, commit_sha)
+        if not found_license == required_license:
+            raise ProcessorError(f"Input variable license_type ({required_license}) does not match the found license ({found_license}).")
 
         vendored_paths = self.vendor_path(
             session=gh_session,
