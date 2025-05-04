@@ -32,7 +32,7 @@ class AutopkgVendorer(Processor):
         "convert_to_yaml": {"required": False, "description": "Convert plist/recipe to YAML (default True)"},
         "new_identifier": {"required": True, "description": "Override Identifier entirely"},
         "new_name": {"required": False, "description": "Override Name in the recipe, if present"},
-        "fail_if_license_missing": {"required": False, "description": "Fail if LICENSE file not found"},
+        "fail_if_license_missing": {"required": False, "description": "Fail if LICENSE file not found", "default": True},
     }
 
     output_variables = {
