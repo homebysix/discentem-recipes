@@ -48,7 +48,7 @@ class GetRemoteJsonKey(URLGetter):
         
         self.output(f"Extracted value for '{key}': {extracted_value}")
         self.env["get_remote_json_key_summary_result"] = {
-                "summary_text": "The following new items were downloaded:",
+                "summary_text": "JSON keys were extracted from the following URLs:",
                 "data": {"downloaded_json": url},
             }
 
