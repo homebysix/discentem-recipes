@@ -2,7 +2,7 @@ Identifier: com.github.discentem.bazelisk.download.yaml
 MinimumVersion: '2.3'
 
 Input:
-  RE_PATTERN: bazelisk-darwin-arm64
+  RE_PATTERN: bazelisk-darwin
 Process:
   - Processor: GitHubReleasesInfoProvider
     Arguments:

@@ -15,23 +15,14 @@ Process:
     Arguments:
       source_path: '%pathname%'
       destination_path: '%pkgroot%/usr/local/bin/bazelisk'
-  # create scripts dir
-  - Processor: PkgRootCreator
-    Arguments:
-      pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/scripts'
-  # create postinstall
-  - Processor: FileCreator
-    Arguments:
-      file_path: '%RECIPE_CACHE_DIR%/%NAME%/scripts/postinstall'
-      file_content: |
-        #!/bin/bash
-        chmod +x /usr/local/bin/bazelisk
-      file_mode: '0755'
   - Processor: PkgCreator
     Arguments:
       pkg_request:
         pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/pkgroot'
         pkgname: '%NAME%-%version%'
         id: 'com.github.bazelbuild.bazelisk'
-        # scripts is automatically looking relative to %RECIPE_CACHE_DIR%
-        scripts: '%NAME%/scripts'
+        chown:
+          - path: "/usr/local/bin/bazelisk"
+            user: root
+            group: wheel
+            mode: "0755"
