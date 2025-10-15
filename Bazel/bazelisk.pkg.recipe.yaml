@@ -8,7 +8,7 @@ Input:
 Process:
   - Processor: PkgRootCreator
     Arguments:
-      pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/pkgroot'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
       pkgdirs:
         'usr/local/bin': '0775'
   - Processor: Copier
@@ -18,7 +18,7 @@ Process:
   - Processor: PkgCreator
     Arguments:
       pkg_request:
-        pkgroot: '%RECIPE_CACHE_DIR%/%NAME%/pkgroot'
+        pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
         pkgname: '%NAME%-%version%'
         id: 'com.github.bazelbuild.bazelisk'
         chown:

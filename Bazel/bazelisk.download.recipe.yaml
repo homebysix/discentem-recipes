@@ -10,5 +10,6 @@ Process:
       asset_regex: '%RE_PATTERN%'
   - Processor: URLDownloader
     Arguments:
+      filename: 'bazelisk'
       url: '%url%'
   - Processor: EndOfCheckPhase
