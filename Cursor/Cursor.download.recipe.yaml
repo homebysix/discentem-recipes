@@ -3,7 +3,7 @@
 # Downloaded at: 2025-05-31 21:26:46 UTC
 
 Description: Downloads the latest Universal version of Cursor.
-Identifier: com.github.peetinc.download.Cursor
+Identifier: com.github.discentem.download.Cursor
 Input:
   NAME: Cursor
 MinimumVersion: '2.3'

@@ -3,7 +3,7 @@
 # Downloaded at: 2025-05-31 21:26:46 UTC
 
 Description: Downloads the latest version of Cursor and imports it into Munki.
-Identifier: com.github.peetinc.munki.Cursor
+Identifier: com.github.discentem.munki.Cursor
 Input:
   MUNKI_CATEGORY: Developer
   MUNKI_REPO_SUBDIR: apps/%NAME%
@@ -20,7 +20,7 @@ Input:
     unattended_install: true
     unattended_uninstall: true
 MinimumVersion: '2.3'
-ParentRecipe: com.github.peetinc.download.Cursor
+ParentRecipe: com.github.discentem.download.Cursor
 Process:
 - Processor: MunkiImporter
   Arguments:
