@@ -13,3 +13,10 @@ Process:
     Arguments:
       url: 'https://developers.yubico.com/yubico-piv-tool/Releases/%match%'
   - Processor: EndOfCheckPhase
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Yubico Limited (LQA3CS5MM7)"
+        - "Developer ID Certification Authority"
+        - "Apple Root CA"
